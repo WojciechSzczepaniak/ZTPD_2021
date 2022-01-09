@@ -1,0 +1,99 @@
+-- zadanie 1
+create table MOVIES(
+ID NUMBER(12) PRIMARY KEY,
+TITLE VARCHAR2(400) NOT NULL,
+CATEGORY VARCHAR2(50),
+YEAR CHAR(4),
+CAST VARCHAR2(4000),
+DIRECTOR VARCHAR2(4000),
+STORY VARCHAR2(4000),
+PRICE NUMBER(5,2),
+COVER BLOB,
+MIME_TYPE VARCHAR2(50)
+)
+
+-- zadanie 2
+INSERT INTO MOVIES (ID, TITLE, CATEGORY, YEAR, CAST, DIRECTOR, STORY, PRICE, COVER, MIME_TYPE)
+SELECT ID, TITLE, CATEGORY, TRIM(YEAR), CAST, DIRECTOR, STORY, PRICE, IMAGE AS COVER, MIME_TYPE
+FROM DESCRIPTIONS LEFT OUTER JOIN COVERS on ID = MOVIE_ID;
+
+-- zadanie 3
+select * from MOVIES where COVER is null;
+
+-- zadanie 4
+select ID, TITLE, LENGTH(COVER) AS FILESIZE
+from MOVIES
+where COVER is not null;
+
+-- zadanie 5
+select ID, TITLE, LENGTH(COVER) AS FILESIZE
+FROM MOVIES
+WHERE COVER Iis null;
+
+-- zadanie 6
+select * from all_directories
+
+-- zadanie 7
+update MOVIES set COVER = EMPTY_BLOB() where ID=66;
+update MOVIES set MIME_TYPE = 'image/jpeg' where ID=66;
+
+-- zadanie 8
+select ID, TITLE, LENGTH(COVER) AS FILESIZE
+FROM MOVIES
+WHERE ID IN (65,66);
+
+--zadanie 9
+DECLARE
+	cover_b blob;
+	image_blob BFILE := BFILENAME('ZSBD_DIR','escape.jpg');
+BEGIN
+	SELECT COVER 
+	INTO cover_b
+    FROM MOVIES
+    where id=66
+    FOR UPDATE;
+    DBMS_LOB.FILEOPEN(image_blob, DBMS_LOB.file_readonly);
+    DBMS_LOB.LOADFROMFILE(cover_b,image_blob,DBMS_LOB.GETLENGTH(image_blob));
+    DBMS_LOB.FILECLOSE(image_blob);
+    COMMIT;
+END;
+
+--zadanie 10
+CREATE TABLE TEMP_COVERS (
+movie_id NUMBER(12),
+image BFILE,
+mime_type VARCHAR2(50)
+)
+
+--zadanie 11
+INSERT INTO TEMP_COVERS VALUES(65, BFILENAME('ZSBD_DIR','eagles.jpg'),'image/jpeg');
+
+--zadanie 12
+SELECT MOVIE_ID, DBMS_LOB.GETLENGTH(image) FROM TEMP_COVERS
+
+--zadanie 13
+DECLARE
+	cover_b blob;
+	blob_type VARCHAR2(50);
+	image_blob BFILE;
+BEGIN
+	SELECT MIME_TYPE INTO blob_type FROM TEMP_COVERS WHERE MOVIE_ID=65;
+	SELECT IMAGE INTO image_blob FROM TEMP_COVERS WHERE MOVIE_ID=65;
+    FOR UPDATE;
+	DBMS_LOB.CREATETEMPORARY(cover_b, TRUE);
+    DBMS_LOB.FILEOPEN(image_blob, DBMS_LOB.file_readonly);
+    DBMS_LOB.LOADFROMFILE(cover_b,image_blob,DBMS_LOB.GETLENGTH(image_blob));
+    UPDATE movies;
+	SET COVER = cover_b, MIME_TYPE = blob_type WHERE id=65;
+	DBMS_LOB.FILECLOSE(image_blob);
+	DBMS.FREETEMPORARY(cover_b)
+	COMMIT;
+END;
+
+-- zadanie 14
+select ID, DBMS_LOB.GETLENGTH(COVER) AS FILESIZE 
+FROM MOVIES WHERE ID IN (65,66)
+
+-- zadanie 15
+DROP TABLE MOVIES;
+DROP TABLE TEMP_COVERS;
