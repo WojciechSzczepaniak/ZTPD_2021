@@ -1,0 +1,87 @@
+-- zadanie 1
+CREATE TABLE DOKUMENTY (
+ID NUMBER(12) PRIMARY KEY,
+DOKUMENT CLOB);
+
+-- zadanie 2
+DECLARE
+tekst CLOB := 'Oto tekst.';
+BEGIN 
+FOR i in 1..10000 
+	LOOP
+	tekst := tekst || 'Oto tekst.';
+	END LOOP;
+	INSERT INTO DOKUMENTY VALUES(1, tekst);
+END;
+
+-- zadanie 3
+SELECT * FROM DOKUMENTY
+SELECT UPPER(DOKUMENT) FROM DOKUMENTY
+SELECT LENGTH(DOKUMENT) FROM DOKUMENTY
+SELECT DBMS_LOB.GETLENGTH(DOKUMENT) FROM DOKUMENTY
+SELECT SUBSTR(DOKUMENT, 5, 1000) FROM DOKUMENTY;
+SELECT DBMS_LOB.SUBSTR(DOKUMENT, 1000, 5) FROM DOKUMENTY;
+
+-- zadanie 4
+INSERT INTO DOKUMENTY VALUES(2, EMPTY_CLOB());
+
+-- zadanie 5
+INSERT INTO DOKUMENTY VALUES(3, NULL);
+
+-- zadanie 7
+SELECT * FROM ALL_DIRECTORIES;
+
+-- zadanie 8
+DECLARE
+	clob1 clob;
+	file1 BDILE := BFILENAME('ZSBD_DIR','dokument.txt');
+	set1 integer :=1;
+	set2 integer :=1;
+	set3 integer :=0;
+	set4 integer :=null;
+BEGIN
+	SELECT DOKUMENT INTO clob1
+    FROM DOKUMENTY
+    WHERE ID = 2
+    FOR UPDATE;
+    DBMS_LOB.fileopen(file1, DBMS_LOB.file_readonly);
+    DBMS_LOB.LOADCLOBFROMFILE(clob1, file1 , DBMS_LOB.LOBMAXSIZE, set1, set2, 0, set3, set4);
+    DBMS_LOB.FILECLOSE(file1);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Status operacji: ' || set4);
+END;
+
+-- zadanie 9
+UPDATE DOKUMENTY SET DOKUMENT = TO_CLOB(BFILENAME('ZSVD_DIR', 'dokument.txt')) WHERE ID=3;
+-- zadanie 10
+SELECT * FROM DOKUMENTY;
+-- zadanie 11
+SELECT LENGTH(DOKUMENT) FROM DOKUMENTY;
+
+-- zadanie 12
+DROP TABLE DOKUMENTY;
+
+-- zadanie 13
+CREATE OR REPLACE PROCEDURE CLOB_CENSOR(clob1 IN OUT clob, text1 VARCHAR2)
+IS
+text2 VARCHAR(256);
+BEGIN 
+	FOR i IN 1..LENGTH(text1) LOOP text2 = text2||'.';
+	END LOOP;
+	WHILE DBMS_LOB.INSTR(clob1, text1)> 0
+	LOOP
+	DBMS_LOB.WRITE(clob1,LENGTH(text1), DBMS_LOB.INSTR(clob1,text1),text2)
+	END LOOP;
+END;
+-- zadanie 14
+CREATE TABLE copy_biographies as SELECT * FROM ZSBD_TOOLS.BIOGRAPHIES;
+
+DECLARE
+	clob1 clob;
+BEGIN
+	SELECT BIO INTO clob1 FROM copy_biographies WHERE ID = 1 FOR UPDATE;
+	CLOB_CENSOR(clob1, 'Cimrman');
+END;
+
+-- zadanie 15
+DROP TABLE copy_biographies
