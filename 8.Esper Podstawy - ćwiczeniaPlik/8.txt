@@ -1,0 +1,28 @@
+--zadanie 24
+"select irstream spolka as X, kursOtwarcia as Y " +
+                        "from KursAkcji.win:length(3) WHERE spolka='Oracle'"
+						
+--zadanie 25
+"select irstream spolka as spolka, kursOtwarcia as kursOtwarcia, data as data " +
+                        "from KursAkcji.win:length(3) WHERE spolka='Oracle'"
+						
+--zadanie 26
+"select irstream spolka as spolka, kursOtwarcia as kursOtwarcia, data as data " +
+                        "from KursAkcji(spolka='Oracle).win:length(3)"
+						
+--zadanie 27
+"select istream spolka as spolka, kursOtwarcia as kursOtwarcia, data as data " +
+                        "from KursAkcji(spolka='Oracle).win:length(3)"
+						
+--zadanie 28
+"select istream spolka as spolka, max(kursOtwarcia) as max(kursOtwarcia), data as data " +
+                        "from KursAkcji(spolka='Oracle').win:length(5)"
+						
+--zadanie 29
+"select istream spolka as spolka, kursOtwarcia - max(kursOtwarcia) as roznica, data as data " +
+                        "from KursAkcji(spolka='Oracle').win:length(5)"
+						
+--zadanie 30
+"select istream spolka as spolka, max(kursOtwarcia) - min(kursOtwarcia) as roznica, data as data " +
+                        "from KursAkcji(spolka='Oracle').win:length(2)" +
+                "having (kursOtwarcia - min(kursOtwarcia)) >0"
