@@ -1,0 +1,62 @@
+-- zadanie 5
+EPDeployment deployment = compileAndDeploy(epRuntime,
+    "select istream data, kursZamkniecia, spolka, max(kursZamkniecia) - kursZamkniecia as roznica "+
+    "from KursAkcji.win:ext_timed_batch(data.getTime(), 1 days) ");
+	
+-- zadanie 6
+EPDeployment deployment = compileAndDeploy(epRuntime,
+    "select istream data, kursZamkniecia, spolka, max(kursZamkniecia) - kursZamkniecia as roznica "+
+    "from KursAkcji.win:ext_timed_batch(data.getTime(), 1 days) " +
+    "where spolka in ('Honda', 'IBM', 'Microsoft')");
+	
+-- zadanie 7 a
+EPDeployment deployment = compileAndDeploy(epRuntime,
+	"select istream data, kursZamkniecia, kursOtwarcia, spolka "+
+	"from KursAkcji(kursZamkniecia > kursOtwarcia).std:unique(spolka).win:ext_timed_batch(data.getTime(), 1 days)");
+
+-- zadanie 7 b
+"select istream data, kursZamkniecia, kursOtwarcia, spolka "+
+	"from KursAkcji(kursZamkniecia > kursOtwarcia).std:unique(spolka).win:ext_timed_batch(data.getTime(), 1 days)" +
+	"where KursAkcji.Metoda(kursOtwarcia,kursZamkniecia) is True");
+
+-- zadanie 8
+EPDeployment deployment = compileAndDeploy(epRuntime,
+	"select istream data, kursZamkniecia,max(kursZamkniecia) - kursZamkniecia as roznica, spolka "+
+	"from KursAkcji(spolka in ('PepsiCo','CocaCola')).win:ext_timed_batch(data.getTime(), 7 days)");
+	
+-- zadanie 9
+EPDeployment deployment = compileAndDeploy(epRuntime,
+	"select istream data, kursZamkniecia, spolka "+
+	"from KursAkcji(spolka in ('PepsiCo','CocaCola')).win:ext_timed_batch(data.getTime(), 1 days)" +
+	"having kursZamkniecia = max(kursZamkniecia)");
+
+- zadanie 10
+EPDeployment deployment = compileAndDeploy(epRuntime,
+	"select istream max(kursZamkniecia)"+
+	"from KursAkcji().win:ext_timed_batch(data.getTime(), 7 days)");
+	
+-- zadanie 11
+EPDeployment deployment = compileAndDeploy(epRuntime,
+	"select istream kursCoc.data as data, kursPep.kursZamkniecia as kursPep, kursCoc.kursZamkniecia as kursCoc" +
+	" from  KursAkcji(spolka='CocaCola').win:ext_timed(data.getTime(), 1 days) as kursCoc, " +
+	" KursAkcji(spolka='PepsiCo').win:ext_timed(data.getTime(), 1 days) as kursPep" +
+	" WHERE kursCoc.kursZamkniecia < kursPep.kursZamkniecia");
+	
+-- zadanie 12
+
+-- zadanie 13
+
+-- zadanie 14
+
+-- zadanie 15
+EPDeployment deployment = compileAndDeploy(epRuntime,
+                "select istream data, spolka, obrot" +
+                    " from  KursAkcji(market= 'NYSE').win:ext_timed_batch(data.getTime(), 7 days) " +
+                    " order by obrot desc " +
+                        "LIMIT 3");
+						
+-- zadanie 16
+EPDeployment deployment = compileAndDeploy(epRuntime,
+                "select istream data, spolka, obrot" +
+                    " from  KursAkcji(market= 'NYSE').win:ext_timed_batch(data.getTime(), 7 days) " +
+                    " order by obrot desc limit 1 offset 2");
