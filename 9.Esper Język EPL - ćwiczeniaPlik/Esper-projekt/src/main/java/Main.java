@@ -17,10 +17,11 @@ public class Main {
         EPRuntime epRuntime = EPRuntimeProvider.getDefaultRuntime(configuration);
 
         EPDeployment deployment = compileAndDeploy(epRuntime,
-                "select istream data, spolka, obrot" +
-                    " from  KursAkcji(market= 'NYSE').win:ext_timed_batch(data.getTime(), 7 days) " +
-                    " order by obrot desc " +
-                        "LIMIT 3");
+                "select istream CoPep.spolka as spolka,last_year.kursOtwarcia as otwarcie_firma1, CoPep.kursOtwarcia as otwarcie_firma2, CoPep.data as data" +
+                        " from  KursAkcji(data.getYear() = 2001).win:ext_timed(data.getTime(), 3 days) last_year " +
+                        "full outer join KursAkcji().win:ext_timed_batch(data.getTime(), 3 days) as CoPep" +
+                        " on last_year.spolka = CoPep.spolka " +
+                "WHERE last_year.kursOtwarcia - CoPep.kursOtwarcia > 3 or last_year.kursOtwarcia - CoPep.kursZamkniecia < -3");
 
         ProstyListener prostyListener = new ProstyListener();
         for (EPStatement statement : deployment.getStatements()) {
